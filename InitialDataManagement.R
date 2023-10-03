@@ -21,7 +21,7 @@ streamgages <- read_csv("~/Documents/GitHub/Base-Flow-Spatial/Data/GaugeList_FIN
 HUC_data <- read_csv("~/Documents/GitHub/Base-Flow-Spatial/Data/HUC_Data_noCO_08252023.csv")
 GWBasin_data <- read_csv("~/Documents/GitHub/Base-Flow-Spatial/Data/GWBasin_Data_noCO_08252023.csv")
 
-DEM <- rast("~/Documents/GitHub/Base-Flow-Spatial/Data/DEM_30M/DEM_30M.tif")
+DEM <- rast("/Users/caelum/Documents/Data/DEM - 30M/DEM_30M/DEM_30M.tif")
 DEM <- project(DEM, "+proj=longlat")
 
 ###############################################################

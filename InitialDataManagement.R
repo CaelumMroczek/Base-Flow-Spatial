@@ -13,13 +13,13 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-setwd("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial")
+setwd("./Base-Flow-Spatial")
 set.seed(313)
 
 ## Load datasets
-streamgages <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/GaugeList_FINAL.csv")
-HUC_data <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_Data_noCO_08252023.csv")
-GWBasin_data <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/GWBasin_Data_noCO_08252023.csv")
+streamgages <- read_csv("./Data/GaugeList_FINAL.csv")
+HUC_data <- read_csv("./Data/HUC_Data_10022023.csv")
+GWBasin_data <- read_csv("./Data/GWBasin_Data_10022023.csv")
 
 DEM <- rast("/Users/caelum/Documents/Data/DEM - 30M/DEM_30M/DEM_30M.tif")
 DEM <- project(DEM, "+proj=longlat")

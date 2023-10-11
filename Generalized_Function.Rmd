@@ -27,9 +27,17 @@ invisible(lapply(packages, library, character.only = TRUE))
 #Dataset with stream reach code and lat/long for desired river
 file_base <- "/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZBFI_Manuscript/"
 
+#Years to be included in period of record
+year_list <- c(seq(from = 1991, to = 2020))
+
 #Points that make up the river shape
 River_Points <- read_csv(paste0(file_base, "SaltRiver/SaltRiver_points.csv"))
-River_Points$ID <- 1:nrow(River_Points)
+River_Points$ID <- 1:nrow(River_Points) #Add ID column to keep sites together
+
+expanded_years <- expand.grid(Lat = unique(River_Points$Lat), Year = year_list) #add years to each site
+River_Points <- merge(River_Points,expanded_years, by = "Lat", all.x = TRUE) 
+River_Points <- River_Points[ order(River_Points$ID, River_Points$Year),]
+River_Points <- River_Points[,c("ID","Year","Lat","Long")]
 
 #Dataset of all predictors, keyed to HUC8 number
 HUC_Predictors <- read_csv(paste0(file_base, "/VariableData/HUC_Variables/HUC_Dataset.csv"))
@@ -38,6 +46,7 @@ HUC_Predictors <- read_csv(paste0(file_base, "/VariableData/HUC_Variables/HUC_Da
 HUC8_Basins <- rast(paste0(file_base, "/SaltRiver/HUC_Raster/HUC8_raster.tif")) #all of the various files for the raster need to be in the file
 HUC8_Basins <- project(HUC8_Basins, "+proj=longlat") #set to correct projection
 
+#DEM(30 meter) of state to pull elevation data 
 DEM <- rast(paste0(file_base, "/BFI-Data/DEM_30M/AZ_DEM_30M.tif"))
 DEM <- project(DEM, "+proj=longlat") #set to follow lat/long projection
 ```
@@ -45,25 +54,53 @@ DEM <- project(DEM, "+proj=longlat") #set to follow lat/long projection
 
 # Use Lat/Long to assign HUC8 basin, site elevation, and associated HUC predcitors 
 ```{r}
-year_list <- c(seq(from = 1991, to = 2020))
-expanded_years <- expand.grid(Lat = unique(River_Points$Lat), Year = year_list)
-River_Points <- merge(River_Points,expanded_years, by = "Lat", all.x = TRUE)
-
-River_Points <- River_Points[ order(River_Points$ID, River_Points$Year),]
-
-for (i in 1:length(River_Points$Reach_Code)){
+#takes ~12 minutes to run with 161,000 rows of data
+start.time <- Sys.time()
+for (i in 1:nrow(River_Points)){
   p <- vect(River_Points[i,], geom=c("Long","Lat")) #define point geometry by lat/long
   huc <- extract(HUC8_Basins,p) #which HUC is the point within
   elev <- extract(DEM,p) #extract elevation of the point
   
   River_Points$HUC8[i] <- as.numeric(as.character(huc[,2]))
-  River_Points$Elev_MASL[i] <- elev[,2]
+  River_Points$Elev_ft[i] <- (elev[,2])*3.281
 }
+end.time <- Sys.time()
+time.taken <- round(end.time - start.time,2)
+time.taken
 
-RiverPoints_Merged <- merge(River_Points, HUC_Predictors, by = "HUC8", all.x = TRUE)
+```
 
+# Use year and lat/long to assign historical temperature data
+##### IN THE FUTURE I COULD CREATE A TABLE OF JUST HUC8 AND PRECIP/TEMP FOR EVERY YEAR IN RECORD #####
+```{r}
+#Extract Precipitation & Temperature Data
+#took ~18 minutes to run 161,000 rows of data
+start.time <- Sys.time()
+for (i in 1:nrow(River_Points)){
+  year <- River_Points$Year[i]
+  #temp raster for the correct year
+  whichRaster_T <- paste0(file_base,"BFI-Data/Temp_PRISM/OutputRasters_HUC/tmp",year,"_huc")
+  thisRaster_T <- rast(whichRaster_T)
+  #precip raster for the correct year
+  whichRaster_P <- paste0(file_base,"BFI-Data/Precip_PRISM/OutputRasters_HUC/ppt",year,"_huc")
+  thisRaster_P <- rast(whichRaster_P)
+  #define the point 
+  p <- vect(River_Points[i,], geom=c("Long","Lat"))
+  #extract point data from correct rasters
+  e_T <- extract(thisRaster_T,p)
+  e_P <- extract(thisRaster_P,p)
+  #assign values in dataframe
+  River_Points$Temp_C[i] <- round(e_T[,2], 2)
+  River_Points$Precip_mm[i] <- round(e_P[,2],2)
+}
+end.time <- Sys.time()
+time.taken <- round(end.time - start.time,2)
+time.taken
+```
 
-e <- extract(r,p)
-
+# Final dataset
+```{r}
+#assign HUC predictors to each site according to HUC location
+RiverPoints_AllData <- merge(River_Points, HUC_Predictors, by = "HUC8", all.x = TRUE)
 ```
 

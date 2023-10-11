@@ -104,3 +104,8 @@ time.taken
 RiverPoints_AllData <- merge(River_Points, HUC_Predictors, by = "HUC8", all.x = TRUE)
 ```
 
+#Run ML Model to fill in year data that is missing
+```{r}
+
+```
+

@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 # Packages Vector
 packages <- c("tidyverse", "sf", "raster", "terra", "ggplot2")
@@ -29,29 +29,38 @@ file_base <- "/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Res
 
 #Points that make up the river shape
 River_Points <- read_csv(paste0(file_base, "SaltRiver/SaltRiver_points.csv"))
+River_Points$ID <- 1:nrow(River_Points)
 
 #Dataset of all predictors, keyed to HUC8 number
 HUC_Predictors <- read_csv(paste0(file_base, "/VariableData/HUC_Variables/HUC_Dataset.csv"))
 
 #Raster of HUC8 basin boundaries
-HUC8_Basins <- rast(x = "/Volumes/Mroczek,Caelum/Data/HUC8_raster.tif")
+HUC8_Basins <- rast(paste0(file_base, "/SaltRiver/HUC_Raster/HUC8_raster.tif")) #all of the various files for the raster need to be in the file
 HUC8_Basins <- project(HUC8_Basins, "+proj=longlat") #set to correct projection
+
+DEM <- rast(paste0(file_base, "/BFI-Data/DEM_30M/AZ_DEM_30M.tif"))
+DEM <- project(DEM, "+proj=longlat") #set to follow lat/long projection
 ```
 
 
-#
+# Use Lat/Long to assign HUC8 basin, site elevation, and associated HUC predcitors 
 ```{r}
-#make new dataframe to populate with huc predictors and Reach Code and lat long
-#Same loop to get DEM data?
+year_list <- c(seq(from = 1991, to = 2020))
+expanded_years <- expand.grid(Lat = unique(River_Points$Lat), Year = year_list)
+River_Points <- merge(River_Points,expanded_years, by = "Lat", all.x = TRUE)
 
-for (i in 1:length(River_Points)){
-  p <- vect(HUC8_Basins[i,], geom=c("Long","Lat"))
+River_Points <- River_Points[ order(River_Points$ID, River_Points$Year),]
+
+for (i in 1:length(River_Points$Reach_Code)){
+  p <- vect(River_Points[i,], geom=c("Long","Lat")) #define point geometry by lat/long
+  huc <- extract(HUC8_Basins,p) #which HUC is the point within
+  elev <- extract(DEM,p) #extract elevation of the point
   
-  e <- extract(thisRaster,p)
-  gauges$Temp_C[i] <- round(e[,2], 4)
+  River_Points$HUC8[i] <- as.numeric(as.character(huc[,2]))
+  River_Points$Elev_MASL[i] <- elev[,2]
 }
 
-
+RiverPoints_Merged <- merge(River_Points, HUC_Predictors, by = "HUC8", all.x = TRUE)
 
 
 e <- extract(r,p)

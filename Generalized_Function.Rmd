@@ -1,0 +1,60 @@
+---
+title: "Generalized_Function"
+author: "Caelum Mroczek"
+date: "2023-10-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Packages Vector
+packages <- c("tidyverse", "sf", "raster", "terra", "ggplot2")
+
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+
+## Loading Data
+```{r}
+#Dataset with stream reach code and lat/long for desired river
+file_base <- "/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZBFI_Manuscript/"
+
+#Points that make up the river shape
+River_Points <- read_csv(paste0(file_base, "SaltRiver/SaltRiver_points.csv"))
+
+#Dataset of all predictors, keyed to HUC8 number
+HUC_Predictors <- read_csv(paste0(file_base, "/VariableData/HUC_Variables/HUC_Dataset.csv"))
+
+#Raster of HUC8 basin boundaries
+HUC8_Basins <- rast(x = "/Volumes/Mroczek,Caelum/Data/HUC8_raster.tif")
+HUC8_Basins <- project(HUC8_Basins, "+proj=longlat") #set to correct projection
+```
+
+
+#
+```{r}
+#make new dataframe to populate with huc predictors and Reach Code and lat long
+#Same loop to get DEM data?
+
+for (i in 1:length(River_Points)){
+  p <- vect(HUC8_Basins[i,], geom=c("Long","Lat"))
+  
+  e <- extract(thisRaster,p)
+  gauges$Temp_C[i] <- round(e[,2], 4)
+}
+
+
+
+
+e <- extract(r,p)
+
+```
+

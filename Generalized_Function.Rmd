@@ -102,10 +102,21 @@ time.taken
 ```{r}
 #assign HUC predictors to each site according to HUC location
 RiverPoints_AllData <- merge(River_Points, HUC_Predictors, by = "HUC8", all.x = TRUE)
+RiverPoints_AllData <- RiverPoints_AllData[,-c(9)]
+RiverPoints_AllData <- RiverPoints_AllData[,c(2,1,3:52)]
 ```
 
 #Run ML Model to fill in year data that is missing
 ```{r}
+xgb_model <- readRDS("/Users/caelum/Documents/GitHub/BFI_Research/XGB_Training/10FoldCV_HUC_XGBModel.rda")
+
+#Hard coded the path for now
+predicting_HUC <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/predicting_HUC.csv")
+
+RiverPoints_AllData <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
+
+predictedBFI <- predict(object = xgb_model,
+                     newdata = as.matrix(RiverPoints_AllData))
 
 ```
 

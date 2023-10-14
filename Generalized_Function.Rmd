@@ -9,7 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 # Packages Vector
-packages <- c("tidyverse", "sf", "raster", "terra", "ggplot2")
+packages <- c("tidyverse", "sf", "raster", "terra", "ggplot2", "boot")
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -115,8 +115,22 @@ predicting_HUC <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/B
 
 RiverPoints_AllData <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
 
-predictedBFI <- predict(object = xgb_model,
-                     newdata = as.matrix(RiverPoints_AllData))
+#######################
 
+RiverPoints_ALL <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
+RiverPoints_ALL <-  subset(RiverPoints_ALL, select = -c(WATER_PERCENT, KEY))
+RiverPoints_ALL <- RiverPoints_ALL[,c(2:4,1,5:50)]
+
+#need to do inverse log of the values since the model outputs logged BFI
+RiverPoints_ALL$predictedBFI <- inv.logit(predict(object = HUC_model,
+                     newdata = as.matrix(RiverPoints_ALL)))
+
+
+mean_predictedBFI <- RiverPoints_ALL %>%
+  group_by(LAT) %>%
+  filter(!is.na(predictedBFI)) %>%  # Remove NA values in predictedBFI
+  summarise(mean_predictedBFI = mean(predictedBFI, na.rm = TRUE))
+
+write_csv(mean_predictedBFI, file = "/Volumes/Mroczek,Caelum/mean_predictedBFI.csv")
 ```
 

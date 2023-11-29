@@ -16,9 +16,6 @@ invisible(lapply(packages, library, character.only = TRUE))
 LSP_points <- read.csv("Data/LowerSanPedro_Points.csv")
 UV_points <- read.csv("Data/UpperVerde_Points.csv")
 
-LSP_points <- LSP_points[-1]
-UV_points <- UV_points[-1]
-
 ##################################################################
 ##################################################################
 
@@ -37,36 +34,59 @@ BFI.UV <- mean(BFI_calcs$BFI[sites.UV])
 
 point.test <- function(df, site){
   #Loop through different number of points
-  for(i in nrow(df)){ 
+  BFI.df <- data.frame(matrix(ncol = 4, nrow = nrow(df)))
+  colnames(BFI.df) <- c("numPoints", "BFI.predict", "BFI.calc", "MSE")
+  
+  for(i in 1:nrow(df)){ 
     #Estimate basin-averaged BFI with each number of points
     points <- df[1:i,]
-    BFI.df <- data.frame(matrix(ncol = 1, nrow = i))
-    colnames(BFI.df) <- c("BFI")
-      #loop through each point lat/long to predict BFI for each point
-      for(j in nrow(points)){
-        #calculate BFI estimate at each point and write to table
-        lat <- points[j,1]
-        long <- points[j,2]
-        
-        #Feed lat and long into function to predict BFI using model
-        
-        #Output predicted BFI
-        
-        BFI.df$BFI[j] <- BFI.predict
-        
-      } #Output -> table of each point and its respective BFI
+    #loop through each point lat/long to predict BFI for each point
+    pointBFI <- BFI.predictor(points, "/Users/caelum/Documents/GitHub/BFI_Research/XGB_Training/10FoldCV_HUC_XGBModel.rda")  
     
-        #average BFI from all points in BFI.df
-        
-        #Calculate MSE and save to a matrix
-        if(site == "LSP"){ #assign calculated basin-averaged BFI value depending on test basin
-          BFI.calc <- 0.377
-        }else{BFI.calc <- 0.506}
-        
-      
-  } #Output -> table of NumPoints, BFI.calc, BFI.predict, MSE
+    BFI.df$numPoints[i] <- i
+    BFI.df$BFI.predict[i] <- mean(pointBFI$mean_predictedBFI)
+    
+    if(site == "LSP"){ #assign calculated basin-averaged BFI value depending on test basin
+      BFI.calc <- 0.377
+    }else{BFI.calc <- 0.506}
+    
+    BFI.df$BFI.calc[i] <- BFI.calc
+    BFI.df$MSE[i] <- mean((BFI.df$BFI.calc[i]-BFI.df$BFI.predict[i])^2)
+  }#Output -> table of NumPoints, BFI.calc, BFI.predict, MSE
+  
+  return(BFI.df)
+}
+
+LSP_pts <- read.csv("./Data/LSP_Points.csv")
+
+LowerSanPedro <- point.test(LSP_pts, "LSP")
+
+#best num of points to minimize MSE
+MSE.min <- min(LowerSanPedro$MSE)
+best.n.LSP <- (which(LowerSanPedro$MSE == MSE.min))  
 
 #Plot MSE vs number of points to minimize MSE
-  
-#Return plot and best number of points
-}
+LSP.MSE.plot <- ggplot(LowerSanPedro, mapping = aes(numPoints,MSE))+
+  geom_line()+
+  geom_point()+
+  geom_point(mapping = aes(best.n.LSP, MSE[best.n.LSP]), color = 'red')+
+  labs(title = "Lower San Pedro")
+
+UV_pts <- read.csv("./Data/UV_Points.csv")
+
+UpperVerde <- point.test(UV_pts, "UV")
+
+#best num of points to minimize MSE
+MSE.min <- min(UpperVerde$MSE)
+best.n.UV <- (which(UpperVerde$MSE == MSE.min))  
+
+#Plot MSE vs number of points to minimize MSE
+UV.MSE.plot <- ggplot(UpperVerde, mapping = aes(numPoints,MSE))+
+  geom_line()+
+  geom_point()+
+  geom_point(mapping = aes(best.n.UV, MSE[best.n.UV]), color = 'red')+
+  labs(title = "Upper Verde")
+
+LSP.MSE.plot
+UV.MSE.plot
+

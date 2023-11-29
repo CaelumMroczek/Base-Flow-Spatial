@@ -71,7 +71,6 @@ time.taken
 ```
 
 # Use year and lat/long to assign historical temperature data
-##### IN THE FUTURE I COULD CREATE A TABLE OF JUST HUC8 AND PRECIP/TEMP FOR EVERY YEAR IN RECORD #####
 ```{r}
 #Extract Precipitation & Temperature Data
 #took ~18 minutes to run 161,000 rows of data
@@ -110,16 +109,16 @@ RiverPoints_AllData <- RiverPoints_AllData[,c(2,1,3:52)]
 ```{r}
 xgb_model <- readRDS("/Users/caelum/Documents/GitHub/BFI_Research/XGB_Training/10FoldCV_HUC_XGBModel.rda")
 
-#Hard coded the path for now
-predicting_HUC <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/predicting_HUC.csv")
-
-RiverPoints_AllData <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
-
-#######################
-
-RiverPoints_ALL <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
-RiverPoints_ALL <-  subset(RiverPoints_ALL, select = -c(WATER_PERCENT, KEY))
-RiverPoints_ALL <- RiverPoints_ALL[,c(2:4,1,5:50)]
+# #Hard coded the path for now
+# predicting_HUC <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/predicting_HUC.csv")
+# 
+# RiverPoints_AllData <- read_csv(file = "/Users/caelum/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
+# 
+# #######################
+# 
+# RiverPoints_ALL <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/RiverPoints_ALL.csv")
+# RiverPoints_ALL <-  subset(RiverPoints_ALL, select = -c(WATER_PERCENT, KEY))
+# RiverPoints_ALL <- RiverPoints_ALL[,c(2:4,1,5:50)]
 
 #need to do inverse log of the values since the model outputs logged BFI
 RiverPoints_ALL$predictedBFI <- inv.logit(predict(object = HUC_model,

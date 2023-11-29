@@ -1,4 +1,5 @@
-###NEEDS TO BE RUN ON LAPTOP WHILE ON NAU NETWORK (FOR NOW)
+
+###NEEDS TO BE RUN ON LAPTOP WHILE ON NAU NETWORK
 
 #Create generalized function that takes Lat/Long values and outputs predicted BFI
 BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat/long points | Model path is the path to the model desired
@@ -29,7 +30,7 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
     
     
     # Load DEM raster
-    DEM <- rast("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/AZ_DEM_30M.tif")
+    DEM <- rast("/Volumes/Shared/CEFNS/SESES/GLG/Open/Mroczek,Caelum/Data/DEM_30M/AZ_DEM _30M.tif")
     DEM <- project(DEM, "+proj=longlat")
     
     # Assign HUC8 basin and elevation

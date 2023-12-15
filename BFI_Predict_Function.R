@@ -70,7 +70,7 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
       River_Points$TEMP_C[i] <- round(e_T[ ,2], 2)
       #River_Points$PRECIP_MM[i] <- round(e_P[, 2], 2)
       River_Points$PRECIP_MM[i] <- round(ppt, 2)
-      # NEED TO ADD ET
+
       River_Points$ET_MM[i] <- round(et, 2)
   
     }
@@ -86,18 +86,18 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
     # Load XGBoost model
     xgb_model <- readRDS(model_path)
     feature_names <- xgb_model$feature_names
-    RiverPoints_AllData <- RiverPoints_AllData[, feature_names]
+    RiverPoints_AllData <- RiverPoints_AllData[, c("HUC8", "YEAR", "LAT",  "LONG", feature_names)]
     
     
     
     # Predict BFI with XGBoost model
-    RiverPoints_AllData$predictedBFI <- inv.logit(predict(object = xgb_model, newdata = as.matrix(RiverPoints_AllData)))
+    RiverPoints_AllData$predictedBFI <- inv.logit(predict(object = xgb_model, newdata = as.matrix(RiverPoints_AllData[,5:50])))
     
     RiverPoints_AllData <- cbind(input_dataframe, RiverPoints_AllData)
     
     # Calculate mean predicted BFI
     mean_predictedBFI <- RiverPoints_AllData %>%
-      group_by(LAT) %>%
+      group_by(HUC8) %>%
       filter(!is.na(predictedBFI)) %>%
       summarise(mean_predictedBFI = mean(predictedBFI, na.rm = TRUE))
     

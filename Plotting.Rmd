@@ -1,0 +1,30 @@
+Factor importance Plot
+```{r}
+ggplot(importance[1:5,]) +
+  geom_col(aes(Importance, reorder(Feature, Importance, sum)), fill = "#076fa2", width = 0.6) +
+  ylab("Feature") +
+  scale_y_discrete(breaks = waiver(),
+                   labels = c("ET", "Soil Group A %", "Precipitation", "Temperature", "Elevation",
+                    expand = expansion(add = c(0, 0.25))))+
+  scale_x_continuous(breaks = c(0, 0.1, 0.2, 0.3),
+                     labels = c("0", "0.1", "0.2", "0.3"),
+                     position = "top",
+                     expand = c(0, 0), limits = c(0, .4)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major.x = element_line(color = "#A8BAC4", size = 0.3),
+    axis.ticks.length = unit(0, "mm"),
+    axis.title = element_text(family = "Avenir-Black", size = 14),
+    axis.text.y = element_blank(),
+    axis.line.y.left = element_line(color = "black", size = 0.5),
+    axis.text.x = element_text(family = "Avenir-Black"),
+    text = element_text(family = "Avenir"))+
+  geom_text(
+    aes(0, y = Feature, label = c("Elevation", "Temperature", "Precipitation", "Soil Group A %", "ET")),
+    hjust = 0,
+    nudge_x = 0.005,
+    colour = "white",
+    size = 4.5)
+
+```
+

@@ -35,3 +35,39 @@ ggplot(importance[1:5,]) +
 
 ```
 
+
+Comparing calculated avg recharge against streamgage base flow
+```{r}
+siteno <- "09511300"
+
+dv <- readNWISdv(siteNumbers = siteno,
+                 parameterCd = "00060",
+                startDate = "1991-01-01",
+                endDate = "2020-12-31")
+
+bf <- BaseflowSeparation(dv$X_00060_00003) #in cfs
+
+
+dv$Date <- as.Date(dv$Date)
+dv$X_00060_00003 <- as.numeric(dv$X_00060_00003)
+# Extract the year from the 'Date' column
+dv$Year <- lubridate::year(dv$Date)
+
+annual_averages <- c()
+count = 0
+# Loop through unique years and calculate the mean for each year
+for (year in 1991:2020) {
+  count = count+1
+  subset_data <- dv[dv$Year == year, ]
+  annual_average <- sum(subset_data$X_00060_00003)
+  annual_averages[count] <- annual_average
+}
+
+# Convert the list to a data frame
+annual_averages_df <- data.frame(Year = as.numeric(names(annual_averages[1991:2020])), annual_average = (annual_averages[1991:2020]))
+
+# Print the result
+
+
+```
+

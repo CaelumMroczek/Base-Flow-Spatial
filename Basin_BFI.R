@@ -23,3 +23,10 @@ PredictorPoints <- PredictorPoints[,c(3,1,4,2)]
 ######################################################
 
 
+HUC_Recharge <- HUC_data$BFI * (HUC_data$PRECIP_MM - HUC_data$ET_MM)
+HUC_Recharge <- ifelse(HUC_Recharge < 0, 0, HUC_Recharge)
+
+HUC_Recharge <- as.data.frame(HUC_Recharge)
+HUC_Recharge <- cbind(HUC_data$HUC8, HUC_Recharge)
+
+

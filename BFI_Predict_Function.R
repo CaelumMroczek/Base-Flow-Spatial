@@ -88,19 +88,16 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
     feature_names <- xgb_model$feature_names
     RiverPoints_AllData <- RiverPoints_AllData[, c("HUC8", "YEAR", "LAT",  "LONG", feature_names)]
     
-    
-    
+  
     # Predict BFI with XGBoost model
     RiverPoints_AllData$predictedBFI <- inv.logit(predict(object = xgb_model, newdata = as.matrix(RiverPoints_AllData[,5:50])))
     
-    RiverPoints_AllData <- cbind(input_dataframe, RiverPoints_AllData)
+    mean_predictedBFI <- tapply(RiverPoints_AllData$predictedBFI, RiverPoints_AllData$HUC8, mean, na.rm = TRUE)
     
-    # Calculate mean predicted BFI
-    mean_predictedBFI <- RiverPoints_AllData %>%
-      group_by(HUC8) %>%
-      filter(!is.na(predictedBFI)) %>%
-      summarise(mean_predictedBFI = mean(predictedBFI, na.rm = TRUE))
-    
-    return(mean_predictedBFI)
+    # Convert the result to a data frame
+    result_df <- data.frame(HUC8 = names(mean_predictedBFI), mean_predictedBFI = as.numeric(mean_predictedBFI))
+
+    return(result_df)
 }
 
+write.csv(result_df, "~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_BFI.csv")

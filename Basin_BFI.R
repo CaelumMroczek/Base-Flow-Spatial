@@ -3,7 +3,8 @@ Points_LatLong <- PredictorPoints[,2:3]
 
 colnames(Points_LatLong) <- c("LAT", "LONG")
 
-#Run on laptop w/ NAU connection
+#Run on laptop w/ NAU connection 
+# This uses 20 random points from each HUC as inputs and predicts BFI for each
 # Takes ~6.5 minutes to run w/ 1680 rows
 start.time <- Sys.time()
 point_annualBFI <- BFI.predictor(Points_LatLong, "~/Documents/GitHub/BFI_Research/XGB_Training/XGB_12122023")
@@ -15,3 +16,10 @@ time.taken
 # average across HUC for each point within it
 PredictorPoints <- merge(point_annualBFI, PredictorPoints, by.x = "LAT", by.y = "Lat")
 PredictorPoints <- PredictorPoints[,c(3,1,4,2)]
+
+
+######################################################
+#----- Annual Recharge by instrumented record-----#
+######################################################
+
+

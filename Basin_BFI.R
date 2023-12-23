@@ -1,6 +1,8 @@
 packages <- c("dplyr", "sf", "raster", "terra", "ggplot2", "readr", "boot")
 invisible(lapply(packages, library, character.only = TRUE))
-
+install.packages("devtools")
+devtools::install_github("slowkow/ggrepel")
+library(ggrepel)
 ############################################################################
 ############################################################################
 
@@ -27,10 +29,10 @@ PredictorPoints <- PredictorPoints[,c(3,1,4,2)]
 ######################################################
 #----- Annual Recharge by instrumented record-----#
 ######################################################
-
+HUC_data <- read_csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_Data_12082023.csv")
 #calculate recharge from BFI and P-ET for each year
 HUC_Recharge <- HUC_data$BFI * (HUC_data$PRECIP_MM - HUC_data$ET_MM)
-HUC_Recharge <- ifelse(HUC_Recharge < 0, 0, HUC_Recharge) #0 recharge is least
+HUC_Recharge <- ifelse(HUC_Recharge < 0, 0, HUC_Recharge) #negative value to 0 recharge
 
 HUC_Recharge <- as.data.frame(HUC_Recharge)
 HUC_Recharge <- cbind(HUC_data$HUC8, HUC_Recharge)
@@ -56,15 +58,32 @@ averages_HUC$R_P_Percent <- averages_HUC$Mean_R_mm/averages_HUC$Precip_mm #calc 
 
 #Add province to dataset
 for(i in 1:nrow(averages_HUC)){
-  this <- which(provinces$HUC8 == averages_HUC$HUC8[i])
+  this <- which(province_HUC$HUC8 == averages_HUC$HUC8[i])
   
-  averages_HUC$Province[i] <- provinces[this,2]
+  averages_HUC$Province[i] <- province_HUC[this,2]
 }
+averages_HUC$Province <- unlist(averages_HUC$Province)
+averages_HUC$Province <- as.factor(averages_HUC$Province)
 
 mean(averages_HUC$R_P_Percent[which(averages_HUC$Province == 'COLORADO PLATEAUS',)])
 mean(averages_HUC$R_P_Percent[which(averages_HUC$Province == 'BASIN AND RANGE',)])
 mean(averages_HUC$R_P_Percent)
 
+#decide outlier or not
+find_outlier <- function(x) {
+  return(x < quantile(x, .25) - 1.5*IQR(x) | x > quantile(x, .75) + 1.5*IQR(x))
+}
+
+averages_HUC <- averages_HUC %>%
+  group_by(Province) %>%
+  mutate(outlier = ifelse(find_outlier(Mean_R_afy), HUC8, NA))
+
+
+ggplot(averages_HUC, aes(x = as.factor(Province), y = Mean_R_afy))+
+  geom_boxplot() +
+  xlab("Physiographic Province")+
+  ylab("Recharge (af/yr)")+
+  geom_text_repel(aes(label=outlier), na.rm=TRUE, hjust=-.2)
 
 
 ###############
@@ -83,11 +102,25 @@ averageBFI_HUC <- HUC_BFI %>%
   summarize(Mean_BFI = mean(BFI, na.rm=TRUE))
 
 for(i in 1:nrow(averageBFI_HUC)){
-  this <- which(provinces$HUC8 == averageBFI_HUC$HUC8[i])
+  this <- which(province_HUC$HUC8 == averageBFI_HUC$HUC8[i])
   
-  averageBFI_HUC$Province[i] <- provinces[this,2]
+  averageBFI_HUC$Province[i] <- province_HUC[this,2]
 }
+
+averageBFI_HUC$Province <- unlist(averageBFI_HUC$Province)
+averageBFI_HUC$Province <- as.factor(averageBFI_HUC$Province)
 
 mean(averageBFI_HUC$Mean_BFI[which(averageBFI_HUC$Province == 'COLORADO PLATEAUS',)])
 mean(averageBFI_HUC$Mean_BFI[which(averageBFI_HUC$Province == 'BASIN AND RANGE',)])
 mean(averageBFI_HUC$Mean_BFI)
+
+#outlier or not
+averageBFI_HUC <- averageBFI_HUC %>%
+  group_by(Province) %>%
+  mutate(outlier = ifelse(find_outlier(Mean_BFI), HUC8, NA))
+
+ggplot(averageBFI_HUC, aes(x = as.factor(Province), y = Mean_BFI))+
+  geom_boxplot() +
+  xlab("Physiographic Province")+
+  ylab("BFI")+
+  geom_text_repel(aes(label=outlier), na.rm=TRUE, hjust=-.2)

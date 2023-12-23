@@ -2,6 +2,7 @@ Factor importance Plot
 ```{r}
 #create importance dataframe
 #run 10Fold_FINAL up to finishing folds
+xgb.model <- readRDS("~/Documents/GitHub/BFI_Research/XGB_Training/XGB_12122023")
 importance <- xgb.importance(model = xgb.model)
 ```
 
@@ -19,11 +20,11 @@ p <- ggplot(importance[1:5,]) +
                      expand = c(0, 0), limits = c(0, .4)) +
   theme(
     panel.background = element_rect(fill = "white"),
-    panel.grid.major.x = element_line(color = "#A8BAC4", size = 0.3),
+    panel.grid.major.x = element_line(color = "#A8BAC4", linewidth = 0.3),
     axis.ticks.length = unit(0, "mm"),
     axis.title = element_text(face = "bold", size = 14),
     axis.text.y = element_blank(),
-    axis.line.y.left = element_line(color = "black", size = 0.5),
+    axis.line.y.left = element_line(color = "black", linewidth = 0.5),
     axis.text.x = element_text(face = "bold"),
     text = element_text(family = "Helvetica"))+
   geom_text(
@@ -35,6 +36,17 @@ p <- ggplot(importance[1:5,]) +
 
 ```
 
+```{r}
+ggsave(
+  filename = "/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZ_Basin_Baseflow/Manuscript/Figures/XGB_feat_importance.pdf",
+  plot = p,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300,
+  device = cairo_pdf()
+)
+```
 
 Comparing calculated avg recharge against streamgage base flow
 ```{r}

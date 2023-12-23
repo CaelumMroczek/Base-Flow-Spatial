@@ -44,7 +44,7 @@ ggplot(annual_averages[40:68,], aes(Year, Recharge_mm))+
   geom_point()
 
 #Hassayampa recharge estimate to compare to model
-hassa <- HUC_data[which(HUC_data$SITENUM == 9517000 | HUC_data$SITENUM == 9515500 | HUC_data$SITENUM == 9516500),] #TRY WITH ALL SITES IN HASSA
+hassa <- HUC_data[which(HUC_data$SITENUM == 9517000 | HUC_data$SITENUM == 9515500 | HUC_data$SITENUM == 9516500),] 
 hassa$Recharge <- hassa$BFI*(hassa$PRECIP_MM - hassa$ET_MM)
 hassa$Recharge <- ifelse(hassa$Recharge < 0, 0, hassa$Recharge)
 hassa_R <- mean(hassa$Recharge)

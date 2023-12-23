@@ -94,8 +94,13 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
     
     mean_predictedBFI <- tapply(RiverPoints_AllData$predictedBFI, RiverPoints_AllData$HUC8, mean, na.rm = TRUE)
     
+    mean_P <- tapply(RiverPoints_AllData$PRECIP_MM, RiverPoints_AllData$HUC8, mean, na.rm = TRUE)
+    
+    mean_ET <- tapply(RiverPoints_AllData$ET_MM, RiverPoints_AllData$HUC8, mean, na.rm = TRUE)
+    
     # Convert the result to a data frame
-    result_df <- data.frame(HUC8 = names(mean_predictedBFI), mean_predictedBFI = as.numeric(mean_predictedBFI))
+    result_df <- data.frame(HUC8 = names(mean_predictedBFI), 
+                            mean_predictedBFI = as.numeric(mean_predictedBFI))
 
     return(result_df)
 }

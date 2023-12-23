@@ -25,7 +25,7 @@ colnames(df) <- c("HUC", "Year", "BFI", "Recharge_mm", "R.Percent")
 
 #Assign physiographic region to each HUC
 for(i in 1:nrow(df)){
-  this <- which(provinces$HUC8 == df$HUC[i])
+  this <- which(provinces$HUC8 == df$HUC8[i])
   
   df$Province[i] <- provinces[this,2]
 }

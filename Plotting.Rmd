@@ -6,7 +6,7 @@ importance <- xgb.importance(model = xgb.model)
 ```
 
 ```{r}
-ggplot(importance[1:5,]) +
+p <- ggplot(importance[1:5,]) +
   geom_col(aes(Gain, reorder(Feature, Gain, sum)), fill = "#076fa2", width = 0.6) +
   ylab("Feature") +
   xlab("Relative Importance")+
@@ -21,13 +21,13 @@ ggplot(importance[1:5,]) +
     panel.background = element_rect(fill = "white"),
     panel.grid.major.x = element_line(color = "#A8BAC4", size = 0.3),
     axis.ticks.length = unit(0, "mm"),
-    axis.title = element_text(family = "Avenir-Black", size = 14),
+    axis.title = element_text(face = "bold", size = 14),
     axis.text.y = element_blank(),
     axis.line.y.left = element_line(color = "black", size = 0.5),
-    axis.text.x = element_text(family = "Avenir-Black"),
-    text = element_text(family = "Avenir"))+
+    axis.text.x = element_text(face = "bold"),
+    text = element_text(family = "Helvetica"))+
   geom_text(
-    aes(0, y = Feature, label = c("Elevation", "Temperature", "Precipitation", "Soil Group A %", "ET")),
+    aes(0, y = Feature, label = c("Elevation", "Temperature", "Precipitation", "Soil Group A%", "ET")),
     hjust = 0,
     nudge_x = 0.005,
     colour = "white",

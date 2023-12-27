@@ -25,7 +25,7 @@ colnames(df) <- c("HUC", "Year", "BFI", "Recharge_mm", "R.Percent")
 
 #Assign physiographic region to each HUC
 for(i in 1:nrow(df)){
-  this <- which(provinces$HUC8 == df$HUC8[i])
+  this <- which(provinces$HUC8 == df$HUC[i])
   
   df$Province[i] <- provinces[this,2]
 }
@@ -33,22 +33,24 @@ for(i in 1:nrow(df)){
 
 ################################################################
 
-#Lower San Pedro recharge over period of record
-tmp <- which(df$HUC == "15050203")
-LSP <- df[tmp,]
+#Rillito recharge over period of record
+tmp <- which(df$HUC == "15050302")
+temp <- df[tmp,]
 
-LSP$Year <- as.numeric(LSP$Year)
-annual_averages <- aggregate(Recharge_mm ~ Year, data = LSP, FUN = mean)
+temp$Year <- as.numeric(temp$Year)
+annual_averages <- aggregate(Recharge_mm ~ Year, data = temp, FUN = mean)
 
-ggplot(annual_averages[40:68,], aes(Year, Recharge_mm))+
+rill <- ggplot(annual_averages[which(annual_averages$Year > 1990 & annual_averages$Year < 2021),], aes(Year, Recharge_mm))+
+  geom_line()+
   geom_point()
 
-#Hassayampa recharge estimate to compare to model
+f#Hassayampa recharge estimate to compare to model
 hassa <- HUC_data[which(HUC_data$SITENUM == 9517000 | HUC_data$SITENUM == 9515500 | HUC_data$SITENUM == 9516500),] 
+hassa <- select(hassa, c('BFI', 'PRECIP_MM', 'ET_MM', 'AREA_KM2'))
 hassa$Recharge <- hassa$BFI*(hassa$PRECIP_MM - hassa$ET_MM)
 hassa$Recharge <- ifelse(hassa$Recharge < 0, 0, hassa$Recharge)
 hassa_R <- mean(hassa$Recharge)
-hassa_R_afy <- mmy_afy(hassa_R, hassa$AREA_KM2)
+hassa_R_afy <- mmy_afy(hassa_R, hassa$AREA_KM2[1])
 
 ######################################################
 #-----Avg Annual Recharge by Physiographic Region-----#

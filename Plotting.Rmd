@@ -83,3 +83,12 @@ annual_averages_df <- data.frame(Year = as.numeric(names(annual_averages[1991:20
 
 ```
 
+Rillito (HUC8 - 15050302) basin recharge over period of record.
+Produced from the HUC_AnnualRecharge.R script.
+```{r}
+rill +
+  theme_minimal()+
+  theme(text = element_text(family = "Helvetica"))+
+  ylab("Recharge (mm)")
+```
+

@@ -1,10 +1,11 @@
-HUC_data <- read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_Data_12082023.csv")
-provinces <- read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/province_HUC.csv")
+HUC_data <-
+  read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_Data_12082023.csv")
+provinces <-
+  read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/province_HUC.csv")
 
 df <- data_frame()
 
-for (i in 1:nrow(HUC_data)){
-  
+for (i in 1:nrow(HUC_data)) {
   huc <- HUC_data$HUC8[i]
   yr <- HUC_data$YEAR[i]
   bfi <- HUC_data$BFI[i]
@@ -15,9 +16,9 @@ for (i in 1:nrow(HUC_data)){
   r <- bfi * q
   r <- ifelse(r < 0, 0, r) #if recharge is negative, set to 0
   
-  rpercent <- r/p #percent of p that is r
+  rpercent <- r / p #percent of p that is r
   
-  l <- c(huc, yr, bfi, round(r,3), round(rpercent,3))
+  l <- c(huc, yr, bfi, round(r, 3), round(rpercent, 3))
   
   df <- rbind(df, l)
 }
@@ -31,20 +32,22 @@ for(i in 1:nrow(df)){
 }
 
 
-################################################################
-
+################################################################xs
 #Rillito recharge over period of record
 tmp <- which(df$HUC == "15050302")
-temp <- df[tmp,]
+temp <- df[tmp, ]
 
 temp$Year <- as.numeric(temp$Year)
-annual_averages <- aggregate(Recharge_mm ~ Year, data = temp, FUN = mean)
+annual_averages <-
+  aggregate(Recharge_mm ~ Year, data = temp, FUN = mean)
 
-rill <- ggplot(annual_averages[which(annual_averages$Year > 1990 & annual_averages$Year < 2021),], aes(Year, Recharge_mm))+
-  geom_line()+
+rill <-
+  ggplot(annual_averages[which(annual_averages$Year > 1990 &
+                                 annual_averages$Year < 2021), ], aes(Year, Recharge_mm)) +
+  geom_line() +
   geom_point()
 
-f#Hassayampa recharge estimate to compare to model
+#Hassayampa recharge estimate to compare to model
 hassa <- HUC_data[which(HUC_data$SITENUM == 9517000 | HUC_data$SITENUM == 9515500 | HUC_data$SITENUM == 9516500),] 
 hassa <- select(hassa, c('BFI', 'PRECIP_MM', 'ET_MM', 'AREA_KM2'))
 hassa$Recharge <- hassa$BFI*(hassa$PRECIP_MM - hassa$ET_MM)
@@ -81,10 +84,10 @@ for (huc in unique(temp$HUC)) {
 }
 
 #assign province to each HUC
-for(i in 1:nrow(average_values)){
+for(i in 1:nrow(average_values)) {
   this <- which(provinces$HUC8 == average_values$HUC[i])
   
-  average_values$Province[i] <- provinces[this,2]
+  average_values$Province[i] <- provinces[this, 2]
 }
 
 avg_vals <- average_values[which(average_values$Year>1991 & average_values$Year<2020),]
@@ -103,6 +106,7 @@ ggplot()+
   geom_point(avg_vals_CP, mapping= aes(Year, average_Recharge_mm),color = 'orangered')+
   theme_minimal()+
   ylab("Recharge (mm)")
+
 
 
 

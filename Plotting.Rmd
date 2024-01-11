@@ -7,13 +7,11 @@ importance <- xgb.importance(model = xgb.model)
 ```
 
 ```{r}
-p <- ggplot(importance[1:5,]) +
+#Graphical Abstract style importance plot
+ggplot(importance[1:5,]) +
   geom_col(aes(Gain, reorder(Feature, Gain, sum)), fill = "#076fa2", width = 0.6) +
   ylab("Feature") +
   xlab("Relative Importance")+
-  scale_y_discrete(breaks = waiver(),
-                   labels = c("ET", "Soil Group A %", "Precipitation", "Temperature", "Elevation",
-                    expand = expansion(add = c(0, 0.25))))+
   scale_x_continuous(breaks = c(0, 0.1, 0.2, 0.3),
                      labels = c("0", "0.1", "0.2", "0.3"),
                      position = "top",
@@ -35,6 +33,29 @@ p <- ggplot(importance[1:5,]) +
     size = 4.5)
 
 ```
+
+```{r}
+ggplot(importance[1:5,]) +
+  geom_col(aes(Gain, reorder(Feature, Gain, sum)), fill = "#076fa2", width = 0.6) +
+  ylab("Feature") +
+  xlab("Relative Importance")+
+  scale_x_continuous(breaks = c(0, 0.1, 0.2, 0.3),
+                     labels = c("0", "0.1", "0.2", "0.3"),
+                     position = "top",
+                     expand = c(0, 0), limits = c(0, .4)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major.x = element_line(color = "#A8BAC4", linewidth = 0.3),
+    axis.ticks.length = unit(0, "mm"),
+    axis.title = element_text(face = "bold", size = 10),
+    axis.text.y = element_text(face = "bold", size = 8),
+    axis.line.y.left = element_line(color = "black", linewidth = 0.5),
+    axis.text.x = element_text(face = "bold"),
+    text = element_text(family = "Helvetica", color = 'black'))+
+  scale_y_discrete(breaks = waiver(),
+                   labels = c("ET", "Soil Group A%", "Precipitation", "Temperature", "Elevation"))
+```
+
 
 ```{r}
 ggsave(

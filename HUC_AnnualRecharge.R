@@ -31,8 +31,70 @@ for(i in 1:nrow(df)){
   df$Province[i] <- provinces[this,2]
 }
 
+################################################################
+#BFI trend for each HUC
 
-################################################################xs
+u_df <- unique(df$HUC)
+bfi_trend <- data_frame()
+for (i in 1:49){
+  huc_vect <- which(df$HUC == u_df[i])
+  temp <- df[huc_vect,]
+  
+  subset_temp <- temp[which(temp$Year > 1990 & temp$Year < 2021), ]
+  lm <- lm(BFI ~ Year, data = subset_temp)
+  summ <- summary.lm(lm)
+  p_val <- summ$coefficients[8]
+  coeff_val <- summ$coefficients[2]
+  
+  l <- c(u_df[i], p_val, coeff_val)
+  bfi_trend <- rbind(bfi_trend, l)
+}
+names(bfi_trend) <- c("huc", "pval", "coeff")
+sig_b <- which(bfi_trend$pval < .05)
+sig_bfi <- bfi_trend[sig_b,]
+
+#Recharge trend for each HUC
+u_df <- unique(df$HUC)
+recharge_trend <- data_frame()
+for (i in 1:49){
+  huc_vect <- which(df$HUC == u_df[i])
+  temp <- df[huc_vect,]
+  subset_temp <- temp[which(temp$Year > 1990 & temp$Year < 2021), ]
+  
+  lm <- lm(Recharge_mm ~ Year, data = subset_temp)
+  summ <- summary.lm(lm)
+  p_val <- summ$coefficients[8]
+  coeff_val <- summ$coefficients[2]
+  
+  l <- c(u_df[i], p_val, coeff_val)
+  recharge_trend <- rbind(recharge_trend, l)
+}
+names(recharge_trend) <- c("huc", "pval", "coeff")
+sig_r <- which(recharge_trend$pval < .05)
+sig_recharge <- recharge_trend[sig_r,]
+
+#R/P trend for each HUC 
+# IDENTICAL TO RECHARGE
+u_df <- unique(df$HUC)
+r_p_trend <- data_frame()
+for (i in 1:49){
+  huc_vect <- which(df$HUC == u_df[i])
+  temp <- df[huc_vect,]
+  subset_temp <- temp[which(temp$Year > 1990 & temp$Year < 2021), ]
+  
+  lm <- lm(Recharge_mm ~ Year, data = subset_temp)
+  summ <- summary.lm(lm)
+  p_val <- summ$coefficients[8]
+  
+  l <- c(u_df[i], p_val)
+  r_p_trend <- rbind(r_p_trend, l)
+}
+names(r_p_trend) <- c("huc", "pval")
+which(r_p_trend$pval < .05)
+################################################################
+
+
+################################################################
 #Rillito recharge over period of record
 tmp <- which(df$HUC == "15050302")
 temp <- df[tmp, ]

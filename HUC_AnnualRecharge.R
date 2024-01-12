@@ -71,7 +71,7 @@ for (i in 1:49){
 }
 names(recharge_trend) <- c("huc", "pval", "coeff")
 sig_r <- which(recharge_trend$pval < .05)
-sig_recharge <- recharge_trend[sig_r,]
+sig_recharge_inst <- recharge_trend[sig_r,]
 
 #R/P trend for each HUC 
 # IDENTICAL TO RECHARGE

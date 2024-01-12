@@ -20,6 +20,41 @@ end.time <- Sys.time()
 time.taken <- round(end.time - start.time,2)
 time.taken
 
+#Get mean annual recharge for each HUC for each year
+point_BFI <- point_annualBFI[,c(1:5,10,51)]
+
+point_BFI <- point_BFI %>%
+  mutate(Recharge = predictedBFI * (PRECIP_MM - ET_MM))
+
+point_BFI$Recharge <- ifelse(point_BFI$Recharge < 0, 0, point_BFI$Recharge)
+
+# Calculate mean annual recharge for each HUC and each year
+mean_recharge <- point_BFI %>%
+  group_by(HUC8, YEAR) %>%
+  summarise(mean_recharge = mean(Recharge, na.rm = TRUE))
+
+#Recharge trend for each HUC
+u_df <- unique(mean_recharge$HUC8)
+recharge_trend <- data_frame()
+for (i in 1:84){
+  huc_vect <- which(mean_recharge$HUC8 == u_df[i])
+  temp <- mean_recharge[huc_vect,]
+  subset_temp <- temp[which(temp$YEAR > 1990 & temp$YEAR < 2021), ]
+  
+  lm <- lm(mean_recharge ~ YEAR, data = subset_temp)
+  summ <- summary.lm(lm)
+  p_val <- summ$coefficients[8]
+  coeff_val <- summ$coefficients[2]
+  
+  l <- c(u_df[i], p_val, coeff_val)
+  recharge_trend <- rbind(recharge_trend, l)
+}
+names(recharge_trend) <- c("huc", "pval", "coeff")
+sig_r <- which(recharge_trend$pval < .05)
+sig_recharge <- recharge_trend[sig_r,]
+
+
+
 ## Need to link the dataframes to produce one with HUCs and each point averaged
 # average across HUC for each point within it
 PredictorPoints <- merge(point_annualBFI, PredictorPoints, by.x = "LAT", by.y = "Lat")

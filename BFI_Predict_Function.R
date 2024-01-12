@@ -102,7 +102,7 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
     result_df <- data.frame(HUC8 = names(mean_predictedBFI), 
                             mean_predictedBFI = as.numeric(mean_predictedBFI))
 
-    return(result_df)
+    return(RiverPoints_AllData)
 }
 
 write.csv(result_df, "~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_BFI.csv")

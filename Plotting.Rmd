@@ -1,0 +1,115 @@
+Factor importance Plot
+```{r}
+#create importance dataframe
+#run 10Fold_FINAL up to finishing folds
+xgb.model <- readRDS("~/Documents/GitHub/BFI_Research/XGB_Training/XGB_12122023")
+importance <- xgb.importance(model = xgb.model)
+```
+
+```{r}
+#Graphical Abstract style importance plot
+ggplot(importance[1:5,]) +
+  geom_col(aes(Gain, reorder(Feature, Gain, sum)), fill = "#076fa2", width = 0.6) +
+  ylab("Feature") +
+  xlab("Relative Importance")+
+  scale_x_continuous(breaks = c(0, 0.1, 0.2, 0.3),
+                     labels = c("0", "0.1", "0.2", "0.3"),
+                     position = "top",
+                     expand = c(0, 0), limits = c(0, .4)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major.x = element_line(color = "#A8BAC4", linewidth = 0.3),
+    axis.ticks.length = unit(0, "mm"),
+    axis.title = element_text(face = "bold", size = 14),
+    axis.text.y = element_blank(),
+    axis.line.y.left = element_line(color = "black", linewidth = 0.5),
+    axis.text.x = element_text(face = "bold"),
+    text = element_text(family = "Helvetica"))+
+  geom_text(
+    aes(0, y = Feature, label = c("Elevation", "Temperature", "Precipitation", "Soil Group A%", "ET")),
+    hjust = 0,
+    nudge_x = 0.005,
+    colour = "white",
+    size = 4.5)
+
+```
+
+```{r}
+ggplot(importance[1:5,]) +
+  geom_col(aes(Gain, reorder(Feature, Gain, sum)), fill = "#076fa2", width = 0.6) +
+  ylab("Feature") +
+  xlab("Relative Importance")+
+  scale_x_continuous(breaks = c(0, 0.1, 0.2, 0.3),
+                     labels = c("0", "0.1", "0.2", "0.3"),
+                     position = "top",
+                     expand = c(0, 0), limits = c(0, .4)) +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major.x = element_line(color = "#A8BAC4", linewidth = 0.3),
+    axis.ticks.length = unit(0, "mm"),
+    axis.title = element_text(face = "bold", size = 10),
+    axis.text.y = element_text(face = "bold", size = 8),
+    axis.line.y.left = element_line(color = "black", linewidth = 0.5),
+    axis.text.x = element_text(face = "bold"),
+    text = element_text(family = "Helvetica", color = 'black'))+
+  scale_y_discrete(breaks = waiver(),
+                   labels = c("ET", "Soil Group A%", "Precipitation", "Temperature", "Elevation"))
+```
+
+
+```{r}
+ggsave(
+  filename = "/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZ_Basin_Baseflow/Manuscript/Figures/XGB_feat_importance.pdf",
+  plot = p,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300,
+  device = cairo_pdf()
+)
+```
+
+Comparing calculated avg recharge against streamgage base flow
+```{r}
+siteno <- "09511300"
+
+dv <- readNWISdv(siteNumbers = siteno,
+                 parameterCd = "00060",
+                startDate = "1991-01-01",
+                endDate = "2020-12-31")
+
+bf <- BaseflowSeparation(dv$X_00060_00003) #in cfs
+
+
+dv$Date <- as.Date(dv$Date)
+dv$X_00060_00003 <- as.numeric(dv$X_00060_00003)
+# Extract the year from the 'Date' column
+dv$Year <- lubridate::year(dv$Date)
+
+annual_averages <- c()
+count = 0
+# Loop through unique years and calculate the mean for each year
+for (year in 1991:2020) {
+  count = count+1
+  subset_data <- dv[dv$Year == year, ]
+  annual_average <- sum(subset_data$X_00060_00003)
+  annual_averages[count] <- annual_average
+}
+
+# Convert the list to a data frame
+annual_averages_df <- data.frame(Year = as.numeric(names(annual_averages[1991:2020])), annual_average = (annual_averages[1991:2020]))
+
+# Print the result
+
+
+```
+
+Rillito (HUC8 - 15050302) basin recharge over period of record.
+Produced from the HUC_AnnualRecharge.R script.
+```{r}
+rill +
+  theme_minimal()+
+  theme(text = element_text(family = "Helvetica"))+
+  ylab("Recharge (mm)")
+```
+

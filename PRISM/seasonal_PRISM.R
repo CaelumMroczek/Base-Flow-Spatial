@@ -139,3 +139,7 @@ for (i in 1991:2020){
 }
 
 
+#Need to group together the seasonal precip dataframes
+#Then they can be assigned to each row in the full data dataframe
+#each site will be assigned the 4 columns of seasonal precip based on which HUC it falls into
+#can use JMP to look for trends between seasonal precip and recharge

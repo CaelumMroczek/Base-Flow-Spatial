@@ -18,7 +18,7 @@ if (any(installed_packages == FALSE)) {
 invisible(lapply(packages, library, character.only = TRUE))
 
 setwd("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial")
-prism_set_dl_dir("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/PRISM")
+prism_set_dl_dir("~/Documents/GitHub/Base-Flow-Spatial/PRISM")
 
 ####################################################
 #download PRISM data
@@ -29,7 +29,7 @@ ppt_2013<- pd_to_file(prism_archive_subset("ppt", "annual", years = 2013))
 ppt_2013_rast <- raster(ppt_2013)
 
 #HUC8 shapefile
-huc8_shape <- shapefile("~/Documents/GitHub/BFI_Research/-Hydrograph-Testing/Data/Shapefiles/HUC8/HUC8_AZ.shp")
+huc8_shape <- shapefile("~/Documents/GitHub/-Hydrograph-Testing/Data/Shapefiles/HUC8/HUC8_AZ.shp")
 
 #set CRS to the same
 huc8_shape <- spTransform(huc8_shape, crs(ppt_2013_rast))

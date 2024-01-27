@@ -25,7 +25,7 @@ BFI.predictor <- function(input_dataframe, model_path) { #data path contains lat
     
     
     # Load HUC8 basin raster
-    HUC8_Basins <- terra::rast("/Volumes/Open/Mroczek,Caelum/Data/HUC8_rasters/huc8.tif")
+    HUC8_Basins <- terra::rast("/Volumes/Shared/CEFNS/SESES/GLG/Open/Mroczek,Caelum/Data/HUC8_rasters/huc8.tif")
     HUC8_Basins <- project(HUC8_Basins, "+proj=longlat +datum=WGS84")
     
     

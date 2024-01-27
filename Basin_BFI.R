@@ -6,22 +6,30 @@ library(ggrepel)
 ############################################################################
 ############################################################################
 
-PredictorPoints <- read_csv("/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZ_Basin_Baseflow/BFI-Data/BasinPredictorPoints.csv")
-Points_LatLong <- PredictorPoints[,2:3]
+PredictorPoints <- read_csv("/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZ_Basin_Baseflow/BFI-Data/RandomPts_AZ.csv")
+Points_LatLong <- PredictorPoints[,1:2]
 
 colnames(Points_LatLong) <- c("LAT", "LONG")
 
 #Run on laptop w/ NAU connection 
 # This uses 20 random points from each HUC as inputs and predicts BFI for each
 # Takes ~6.5 minutes to run w/ 1680 rows
+
 start.time <- Sys.time()
 point_annualBFI <- BFI.predictor(Points_LatLong, "~/Documents/GitHub/BFI_Research/XGB_Training/XGB_12122023")
 end.time <- Sys.time()
 time.taken <- round(end.time - start.time,2)
 time.taken
 
+
 #Get mean annual recharge for each HUC for each year
 point_BFI <- point_annualBFI[,c(1:5,10,51)]
+
+
+
+
+
+
 
 point_BFI <- point_BFI %>%
   mutate(Recharge = predictedBFI * (PRECIP_MM - ET_MM))

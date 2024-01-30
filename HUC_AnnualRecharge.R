@@ -18,11 +18,11 @@ for (i in 1:nrow(HUC_data)) {
   
   rpercent <- r / p #percent of p that is r
   
-  l <- c(huc, yr, bfi, round(r, 3), round(rpercent, 3))
+  l <- c(huc, yr, bfi, round(r, 3), round(rpercent, 3), p)
   
   df <- rbind(df, l)
 }
-colnames(df) <- c("HUC", "Year", "BFI", "Recharge_mm", "R.Percent")
+colnames(df) <- c("HUC", "Year", "BFI", "Recharge_mm", "R.Percent", "Precip_mm")
 
 #Assign physiographic region to each HUC
 for(i in 1:nrow(df)){
@@ -92,7 +92,25 @@ for (i in 1:49){
 names(r_p_trend) <- c("huc", "pval")
 which(r_p_trend$pval < .05)
 ################################################################
-
+#Precip trend
+u_df <- unique(df$HUC)
+ppt_trend <- data_frame()
+for (i in 1:49){
+  huc_vect <- which(df$HUC == u_df[i])
+  temp <- df[huc_vect,]
+  
+  subset_temp <- temp[which(temp$Year > 1990 & temp$Year < 2021), ]
+  lm <- lm(Precip_mm ~ Year, data = subset_temp)
+  summ <- summary.lm(lm)
+  p_val <- summ$coefficients[8]
+  coeff_val <- summ$coefficients[2]
+  
+  l <- c(u_df[i], p_val, coeff_val)
+  ppt_trend <- rbind(ppt_trend, l)
+}
+names(ppt_trend) <- c("huc", "pval", "coeff")
+sig_p <- which(ppt_trend$pval < .05)
+sig_ppt <- ppt_trend[sig_p,]
 
 ################################################################
 #Rillito recharge over period of record

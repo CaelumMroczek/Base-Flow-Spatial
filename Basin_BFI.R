@@ -26,11 +26,6 @@ time.taken
 point_BFI <- point_annualBFI[,c(1:5,10,51)]
 
 
-
-
-
-
-
 point_BFI <- point_BFI %>%
   mutate(Recharge = predictedBFI * (PRECIP_MM - ET_MM))
 
@@ -167,3 +162,12 @@ ggplot(averageBFI_HUC, aes(x = as.factor(Province), y = Mean_BFI))+
   xlab("Physiographic Province")+
   ylab("BFI")+
   geom_text_repel(aes(label=outlier), na.rm=TRUE, hjust=-.2)
+
+
+
+for(i in 1:nrow(PredictedBFI_HUC)){
+  huc <- PredictedBFI_HUC$HUC8[i]
+  r <- which(province_HUC$HUC8 == huc)
+  
+  PredictedBFI_HUC$PROVINCE[i] <- province_HUC$PROVINCE[r]
+}

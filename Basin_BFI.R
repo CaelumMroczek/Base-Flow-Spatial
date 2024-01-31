@@ -6,7 +6,7 @@ library(ggrepel)
 ############################################################################
 ############################################################################
 
-PredictorPoints <- read_csv("/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZ_Basin_Baseflow/BFI-Data/RandomPts_AZ.csv")
+PredictorPoints <- read_csv("/Users/caelum/Library/Mobile Documents/com~apple~CloudDocs/NAU/Research/AZ_Basin_Baseflow/BFI-Data/BasinPredictorPoints.csv")
 Points_LatLong <- PredictorPoints[,1:2]
 
 colnames(Points_LatLong) <- c("LAT", "LONG")

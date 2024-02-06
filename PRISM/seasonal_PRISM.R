@@ -9,7 +9,7 @@
 packages <- c("tidyverse", "sf", "raster", "prism", "exactextractr")
 
 # Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
+installed_packages <- packages %in% rownames(installed.package())
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
@@ -22,14 +22,14 @@ prism_set_dl_dir("~/Documents/GitHub/Base-Flow-Spatial/PRISM")
 
 ####################################################
 #download PRISM data for winters first
-get_prism_monthlys("ppt", years = 1990:2020, mon = c(1,2,12), keepZip = FALSE)
+get_prism_monthlys("ppt", years = 1990:2020, mon = c(1:12), keepZip = FALSE)
 
 #Format to pull produce raster:
 ppt_2013<- pd_to_file(prism_archive_subset("ppt", "monthly", years = 2013, mon = 1))
 ppt_2013_rast <- raster(ppt_2013)
 
 #HUC8 shapefile
-huc8_shape <- shapefile("~/Documents/GitHub/-Hydrograph-Testing/Data/Shapefiles/HUC8/HUC8_AZ.shp")
+huc8_shape <- shapefile("~/Documents/GitHub/BFI_Research/-Hydrograph-Testing/Data/Shapefiles/HUC8/HUC8_AZ.shp")
 
 #set CRS to the same
 huc8_shape <- spTransform(huc8_shape, crs(ppt_2013_rast))
@@ -68,13 +68,13 @@ count <-  1
 for (i in 1991:2020){
   count <- count + 1
   
-  mar_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i-1, mon = 12)) #previous year mar
+  mar_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 3)) #previous year mar
   mar_tmp_rast <- raster(mar_rast_file) #create raster
   
-  apr_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 1)) #read raster current apr
+  apr_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 4)) #read raster current apr
   apr_tmp_file <- raster(apr_rast_file) #create raster
   
-  may_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 2)) #read raster current may
+  may_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 5)) #read raster current may
   may_tmp_file <- raster(may_rast_file) #create raster
   
   rast_stack <- stack(mar_tmp_rast, apr_tmp_file, may_tmp_file)
@@ -94,13 +94,13 @@ count <-  1
 for (i in 1991:2020){
   count <- count + 1
   
-  jun_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i-1, mon = 12)) #previous year jun
+  jun_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 6)) #previous year jun
   jun_tmp_rast <- raster(jun_rast_file) #create raster
   
-  jul_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 1)) #read raster current jul
+  jul_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 7)) #read raster current jul
   jul_tmp_file <- raster(jul_rast_file) #create raster
   
-  aug_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 2)) #read raster current aug
+  aug_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 8)) #read raster current aug
   aug_tmp_file <- raster(aug_rast_file) #create raster
   
   rast_stack <- stack(jun_tmp_rast, jul_tmp_file, aug_tmp_file)
@@ -120,13 +120,13 @@ count <-  1
 for (i in 1991:2020){
   count <- count + 1
   
-  sep_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i-1, mon = 12)) #previous year sep
+  sep_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 9)) #previous year sep
   sep_tmp_rast <- raster(sep_rast_file) #create raster
   
-  oct_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 1)) #read raster current oct
+  oct_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 10)) #read raster current oct
   oct_tmp_file <- raster(oct_rast_file) #create raster
   
-  nov_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 2)) #read raster current nov
+  nov_rast_file <- pd_to_file(prism_archive_subset("ppt", "monthly", years = i, mon = 11)) #read raster current nov
   nov_tmp_file <- raster(nov_rast_file) #create raster
   
   rast_stack <- stack(sep_tmp_rast, oct_tmp_file, nov_tmp_file)
@@ -143,3 +143,38 @@ for (i in 1991:2020){
 #Then they can be assigned to each row in the full data dataframe
 #each site will be assigned the 4 columns of seasonal precip based on which HUC it falls into
 #can use JMP to look for trends between seasonal precip and recharge
+
+averages$fall <- 0
+averages$spri <- 0
+averages$summ <- 0
+averages$wint <- 0
+
+assign_season <- function(input,df){
+  for(i in 1:nrow(input)){
+    year <- input$YEAR[i]
+    r <- which(df$HUC == input$HUC8[i])
+    c <- which(substring(colnames(df),6) == year)
+    lab <- substring(colnames(df[c]),1,4)
+    input[c(lab)][i,] <- df[r,c]
+  }
+  return(input)
+}
+
+averages <- assign_season(averages, fall_precip)
+averages <- assign_season(averages, winter_precip)
+averages <- assign_season(averages, summer_precip)
+averages<- assign_season(averages, spring_precip)
+
+averages$Recharge <- 0
+for(i in 1:nrow(averages)){
+  q <- averages$PRECIP_MM[i] - averages$ET_MM[i]
+  r <- q * averages$predictedBFI[i]
+  
+  averages$Recharge[i] <- ifelse(r >0, r, 0)
+}
+
+averages$Province <- 0
+for(i in 1:nrow(averages)){
+  a <- which(province_HUC$HUC8 == averages$HUC8[i])
+  averages$Province[i] <- province_HUC$PROVINCE[a]
+}

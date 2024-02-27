@@ -6,24 +6,37 @@ invisible(lapply(packages, library, character.only = TRUE))
 ############################################################################
 ############################################################################
 
-PredictorPoints <- read_csv("S:/CEFNS/SESES/GLG/Open/Mroczek,Caelum/Data/BasinPredictorPoints.csv")
+###-------------------------------###
+
+PredictorPoints <- read_csv("S:/CEFNS/SESES/GLG/Open/Mroczek,Caelum/RandomPts_AZ.csv")
 Points_LatLong <- PredictorPoints[,2:3]
 
 colnames(Points_LatLong) <- c("LAT", "LONG")
 
-#Run on laptop w/ NAU connection 
-# This uses 20 random points from each HUC as inputs and predicts BFI for each
-# Takes ~6.5 minutes to run w/ 1680 rows
+# Divide the dataset into 10 equal sets
+num_sets <- 10
+set_size <- nrow(Points_LatLong) / num_sets
+point_sets <- split(Points_LatLong, cut(seq_along(Points_LatLong$LAT), breaks = num_sets, labels = FALSE))
 
-pb <- progress_bar$new(total = 100)
+# Initialize an empty list to store the results
+results_list <- list()
 
-profvis({
-start.time <- Sys.time()
-point_annualBFI <- BFI.predictor(Points_LatLong, "~/GitHub/XGB_Training/XGB_12122023")
-end.time <- Sys.time()
-time.taken <- round(end.time - start.time,2)
-time.taken
-})
+# Loop over each set and run BFI.predictor
+for (i in 1:num_sets) {
+  
+  start.time <- Sys.time()
+  point_annualBFI <- BFI.predictor(point_sets[[i]], "~/GitHub/XGB_Training/XGB_12122023", "office")
+  end.time <- Sys.time()
+  time.taken <- round(end.time - start.time,2)
+  cat("Finished set", i, "of", num_sets)
+  
+  results_list[[i]] <- point_annualBFI
+}
+
+# Combine the results into a single dataframe
+combined_results <- bind_rows(results_list)
+
+###-------------------------------###
 
 #Get mean annual recharge for each HUC for each year
 point_BFI <- point_annualBFI[,c(1:5,10,51)]

@@ -1,20 +1,22 @@
 HUC_data <-
-  read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/HUC_Data_12082023.csv")
+  read.csv("~/Documents/GitHub/Base-Flow-Spatial/Data/HUC_Data_12082023.csv")
 provinces <-
   read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/province_HUC.csv")
+PredictingPoints_AllData <- read.csv("~/Documents/GitHub/Base-Flow-Spatial/Data/PredictingPoints_AllData.csv")
+
 
 df <- data_frame()
 
-for (i in 1:nrow(HUC_data)) {
-  huc <- HUC_data$HUC8[i]
-  yr <- HUC_data$YEAR[i]
-  bfi <- HUC_data$BFI[i]
-  p <- HUC_data$PRECIP_MM[i]
+for (i in 1:nrow(PredictingPoints_AllData)) {
+  huc <- PredictingPoints_AllData$HUC8[i]
+  yr <- PredictingPoints_AllData$YEAR[i]
+  bfi <- PredictingPoints_AllData$predictedBFI[i]
+  p <- PredictingPoints_AllData$PRECIP_MM[i]
   
-  q <- HUC_data$PRECIP_MM[i] - HUC_data$ET_MM[i] #P-ET
+  q <- PredictingPoints_AllData$PRECIP_MM[i] - PredictingPoints_AllData$ET_MM[i] #P-ET
   
   r <- bfi * q
-  r <- ifelse(r < 0, 0, r) #if recharge is negative, set to 0
+  #r <- ifelse(r < 0, 0, r) #if recharge is negative, set to 0
   
   rpercent <- r / p #percent of p that is r
   
@@ -23,6 +25,13 @@ for (i in 1:nrow(HUC_data)) {
   df <- rbind(df, l)
 }
 colnames(df) <- c("HUC", "Year", "BFI", "Recharge_mm", "R.Percent", "Precip_mm")
+
+avg_recharge <- df %>%
+  group_by(HUC, Year) %>%
+  summarise(Avg_Recharge_mm = mean(Recharge_mm))
+
+
+
 
 #Assign physiographic region to each HUC
 for(i in 1:nrow(df)){

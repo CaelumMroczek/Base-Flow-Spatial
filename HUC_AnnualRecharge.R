@@ -2,7 +2,7 @@ HUC_data <-
   read.csv("~/Documents/GitHub/Base-Flow-Spatial/Data/HUC_Data_12082023.csv")
 provinces <-
   read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/province_HUC.csv")
-PredictingPoints_AllData <- read.csv("~/Documents/GitHub/Base-Flow-Spatial/Data/PredictingPoints_AllData.csv")
+PredictingPoints_AllData <- read.csv("~/Documents/GitHub/BFI_Research/Base-Flow-Spatial/Data/PredictingPoints_AllData.csv")
 
 
 df <- data_frame()
@@ -31,7 +31,7 @@ avg_recharge <- df %>%
   summarise(Avg_Recharge_mm = mean(Recharge_mm))
 
 
-
+##############################################
 
 #Assign physiographic region to each HUC
 for(i in 1:nrow(df)){

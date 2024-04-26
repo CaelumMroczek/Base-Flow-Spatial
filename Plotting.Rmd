@@ -114,27 +114,27 @@ rill +
 ```
 
 ```{r}
-#Usiung HUC_AnnualRecharge script to produce avg_recharge from PredictingPoints_AllData
+#Using HUC_AnnualRecharge script to produce avg_recharge from PredictingPoints_AllData
 
 rillito <- avg_recharge %>% filter(HUC == 15050302)
 verde <- avg_recharge %>% filter(HUC == 15060202)
 combined_data <- rbind(transform(rillito, Location = "Rillito"), transform(verde, Location = "Verde"))
 
 ggplot(combined_data, aes(x = Avg_Recharge_mm, y = Location, fill = Location)) +
-  geom_boxplot() +
+  geom_boxplot(width = .5) +
   geom_vline(xintercept = 0, linewidth = 1, linetype = 3) +
   labs(x = "Recharge (mm/yr)", y = NULL) +
   scale_fill_manual(values = c("Rillito" = "lightgrey", "Verde" = "lightgrey")) +
   theme_classic() +
-  annotate("text", x = 17, y = 2.45, label = "Upper Verde", size = 4) +
-  annotate("text", x = -9, y = 1.45, label = "Rillito", size = 4)+
+  annotate("text", x = 17, y = 2.35, label = "Upper Verde", size = 5) +
+  annotate("text", x = -9, y = 1.35, label = "Rillito", size = 5)+
   scale_x_continuous(n.breaks = 6) +
   theme(legend.position = "none",
         axis.line.y = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
-        axis.text.x = element_text(size = 10), 
-        text = element_text(size = 12, family="Helvetica"))
+        axis.text.x = element_text(size = 12), 
+        text = element_text(size = 14, family="Helvetica"))
 
 
 

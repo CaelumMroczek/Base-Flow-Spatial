@@ -1,8 +1,6 @@
 packages <- c("dplyr", "sf", "raster", "terra", "ggplot2", "readr", "boot", "progress")
 invisible(lapply(packages, library, character.only = TRUE))
-# install.packages("devtools")
-# devtools::install_github("slowkow/ggrepel")
-# library(ggrepel)
+
 ############################################################################
 ############################################################################
 
